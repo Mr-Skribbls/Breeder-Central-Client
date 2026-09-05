@@ -17,12 +17,17 @@ Requires `react` and `react-dom` (v18 or v19) as peer dependencies.
 Import from the package root. CSS Modules styles shipped with a component are injected automatically — no separate CSS import needed. If you need to import a stylesheet manually, use `import "@breeder-central/ui/styles.css";`.
 
 ```tsx
-import { ImageDisplay } from "@breeder-central/ui";
+import { BreederCentralImage } from "@breeder-central/ui";
 ```
 
 ## Components
 
-- `ImageDisplay` — responsive image container (`src/components/ImageDisplay/`). Takes a required `imageUrl` plus optional `center` focal point (`[x, y]` percentages, default `[50, 50]`), `objectFit` (`cover` | `contain`), and `alt` (required for accessibility).
+- `BreederCentralImage` — responsive image container (`src/components/BreederCentralImage/`). Takes a required `imageUrl` plus optional `center` focal point (`[x, y]` percentages, default `[50, 50]`), `objectFit` (`cover` | `contain`), and `alt` (required for accessibility).
+
+## Hooks
+
+- `useBreederCentral(apiUrl, apiKey)` — loads animals from `GET {apiUrl}/functions/v1/cdn_get_animals` with an `x-api-key` header and returns `{ animals, animalImages, loading, error, refetch }`. Results are cached in `localStorage` for 1 hour; `refetch()` clears the cache and reloads from the network. `animalImages` is the flattened list of images across all animals.
+- `requestAnimals(apiUrl, apiKey)` — the underlying fetch helper (throws on non-2xx responses or unexpected response shapes).
 
 ## Utilities
 

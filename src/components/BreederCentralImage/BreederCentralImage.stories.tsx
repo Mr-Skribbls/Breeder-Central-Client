@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ImageDisplay } from "./ImageDisplay";
+import { BreederCentralImage } from "./BreederCentralImage";
 
 const meta = {
-  title: "Components/ImageDisplay",
-  component: ImageDisplay,
+  title: "Components/BreederCentralImage",
+  component: BreederCentralImage,
   tags: ["autodocs"],
   argTypes: {
     center: { control: { type: "object" } },
@@ -13,7 +13,7 @@ const meta = {
     alt: "A photo",
     imageUrl: "https://picsum.photos/seed/breeder/800/600",
   },
-} satisfies Meta<typeof ImageDisplay>;
+} satisfies Meta<typeof BreederCentralImage>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

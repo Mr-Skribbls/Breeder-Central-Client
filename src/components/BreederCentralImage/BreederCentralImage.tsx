@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { cx } from "../../utils/cx";
-import styles from "./ImageDisplay.module.css";
+import styles from "./BreederCentralImage.module.css";
 
 type Enumerate<N extends number, Acc extends number[] = []> = Acc["length"] extends N
   ? Acc[number]
@@ -14,7 +14,7 @@ type IntRange<F extends number, T extends number> =
 type ValidPercentage = IntRange<0, 100>;
 export type ImageCenter = [ValidPercentage, ValidPercentage];
 
-export type ImageDisplayProps = {
+export type BreederCentralImageProps = {
   imageUrl: string;
   alt: string;
   center?: ImageCenter;
@@ -28,7 +28,7 @@ const DEFAULT_CENTER: ImageCenter = [50, 50];
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-export const ImageDisplay = (props: ImageDisplayProps) => {
+export const BreederCentralImage = (props: BreederCentralImageProps) => {
   const { className, style, imageUrl, alt, center = DEFAULT_CENTER, objectFit = "cover" } = props;
 
   const [x, y] = center;
@@ -46,4 +46,4 @@ export const ImageDisplay = (props: ImageDisplayProps) => {
   );
 };
 
-export default ImageDisplay;
+export default BreederCentralImage;

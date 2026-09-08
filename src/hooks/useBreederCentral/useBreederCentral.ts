@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
 export interface AnimalImage {
-  animal_id: number;
-  image_id: string;
-  image_filename: string;
-  center_x: number;
-  center_y: number;
+  id: string;
+  animalId: number;
+  filename: string;
+  centerX: number;
+  centerY: number;
   alt: string;
   signedUrl: string;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export interface AnimalImage {
   animal_id: number;
@@ -14,27 +14,60 @@ export interface BreederCentralAnimal {
   id: number;
   description?: string;
   name?: string;
-  gender?: "M" | "F";
+  gender?: 'M' | 'F';
   state?: string;
   images?: AnimalImage[];
+}
+
+export interface BreederCentralOffspringAnimal {
+  animalId: number;
+  role: string;
+}
+
+export interface BreederCentralOffspringEvent {
+  name: string;
+  date: string;
+}
+
+export interface BreederCentralOffspringGroup {
+  id: number;
+  name: string;
+  description: string | null;
+  animals: BreederCentralOffspringAnimal[];
+  events: BreederCentralOffspringEvent[];
 }
 
 export const requestAnimals = async (apiUrl: string, apiKey: string): Promise<BreederCentralAnimal[]> => {
   const url = `${apiUrl}/functions/v1/cdn_get_animals`;
   const response = await fetch(url, {
-    headers: { "x-api-key": apiKey },
+    headers: { 'x-api-key': apiKey },
   });
   if (!response.ok) {
     throw new Error(`Failed to load animals: ${response.status}`);
   }
   const animals = await response.json();
   if (!Array.isArray(animals)) {
-    throw new Error("Failed to load animals: unexpected response shape");
+    throw new Error('Failed to load animals: unexpected response shape');
   }
   return animals;
 };
 
-const CACHE_KEY = "breeder-central-animals";
+export const requestOffspringGroups = async (apiUrl: string, apiKey: string): Promise<BreederCentralOffspringGroup[]> => {
+  const url = `${apiUrl}/functions/v1/cdn_get_offspring`;
+  const response = await fetch(url, {
+    headers: { 'x-api-key': apiKey },
+  });
+  if(!response.ok) {
+    throw new Error(`Failed to load offspring groups: ${response.status}`);
+  }
+  const offspringGroups = await response.json();
+  if(!Array.isArray(offspringGroups)) {
+    throw new Error('Failed to load offspring groups: unexpected response shape');
+  }
+  return offspringGroups;
+}
+
+const CACHE_KEY = 'breeder-central-animals';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 interface AnimalCache {
@@ -77,9 +110,52 @@ const clearCachedAnimals = () => {
   }
 };
 
+const OFFSPRING_CACHE_KEY = 'breeder-central-offspring-groups';
+
+interface OffspringCache {
+  data: BreederCentralOffspringGroup[];
+  expiresAt: number;
+}
+
+const readCachedOffspring = (): BreederCentralOffspringGroup[] | null => {
+  try {
+    const raw = localStorage.getItem(OFFSPRING_CACHE_KEY);
+    if (!raw) return null;
+    const cache: OffspringCache = JSON.parse(raw);
+    if (Array.isArray(cache.data) && cache.expiresAt > Date.now()) {
+      return cache.data;
+    }
+    localStorage.removeItem(OFFSPRING_CACHE_KEY);
+  } catch {
+    // ignore storage read errors
+  }
+  return null;
+};
+
+const writeCachedOffspring = (offspringGroups: BreederCentralOffspringGroup[]) => {
+  const cache: OffspringCache = {
+    data: offspringGroups,
+    expiresAt: Date.now() + CACHE_TTL_MS,
+  };
+  try {
+    localStorage.setItem(OFFSPRING_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // ignore storage write errors
+  }
+};
+
+const clearCachedOffspring = () => {
+  try {
+    localStorage.removeItem(OFFSPRING_CACHE_KEY);
+  } catch {
+    // ignore storage write errors
+  }
+};
+
 export const useBreederCentral = (apiUrl: string, apiKey: string) => {
   const [animals, setAnimals] = useState<BreederCentralAnimal[]>([]);
   const [animalImages, setAnimalImages] = useState<AnimalImage[]>([]);
+  const [offspringGroups, setOffspringGroups] = useState<BreederCentralOffspringGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -91,18 +167,27 @@ export const useBreederCentral = (apiUrl: string, apiKey: string) => {
       setLoading(true);
       setError(null);
       try {
-        const cached = readCachedAnimals();
-        const fetchedAnimals = cached ?? (await requestAnimals(apiUrl, apiKey));
-        if (!cached) {
+        const cachedAnimals = readCachedAnimals();
+        const cachedOffspring = readCachedOffspring();
+
+        const [fetchedAnimals, fetchedOffspring] = await Promise.all([
+          cachedAnimals ?? requestAnimals(apiUrl, apiKey),
+          cachedOffspring ?? requestOffspringGroups(apiUrl, apiKey),
+        ]);
+        if (!cachedAnimals) {
           writeCachedAnimals(fetchedAnimals);
+        }
+        if (!cachedOffspring) {
+          writeCachedOffspring(fetchedOffspring);
         }
         if (cancelled) return;
 
         setAnimals(fetchedAnimals);
         setAnimalImages(fetchedAnimals.flatMap((animal) => animal.images ?? []));
+        setOffspringGroups(fetchedOffspring);
       } catch (err) {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : "Failed to load animals");
+        setError(err instanceof Error ? err.message : 'Failed to load animals');
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -119,12 +204,14 @@ export const useBreederCentral = (apiUrl: string, apiKey: string) => {
 
   const refetch = () => {
     clearCachedAnimals();
+    clearCachedOffspring();
     setReloadKey((key) => key + 1);
   };
 
   return {
     animals,
     animalImages,
+    offspringGroups,
     loading,
     error,
     refetch,

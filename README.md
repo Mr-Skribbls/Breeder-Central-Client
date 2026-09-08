@@ -26,8 +26,9 @@ import { BreederCentralImage } from "@breeder-central/ui";
 
 ## Hooks
 
-- `useBreederCentral(apiUrl, apiKey)` — loads animals from `GET {apiUrl}/functions/v1/cdn_get_animals` with an `x-api-key` header and returns `{ animals, animalImages, loading, error, refetch }`. Results are cached in `localStorage` for 1 hour; `refetch()` clears the cache and reloads from the network. `animalImages` is the flattened list of images across all animals.
-- `requestAnimals(apiUrl, apiKey)` — the underlying fetch helper (throws on non-2xx responses or unexpected response shapes).
+- `useBreederCentral(apiUrl, apiKey)` — loads animals from `GET {apiUrl}/functions/v1/cdn_get_animals` and offspring groups from `GET {apiUrl}/functions/v1/cdn_get_offspring`, both with an `x-api-key` header, and returns `{ animals, animalImages, offspringGroups, loading, error, refetch }`. Results are cached in `localStorage` for 1 hour; `refetch()` clears both caches and reloads from the network. `animalImages` is the flattened list of images across all animals.
+- `requestAnimals(apiUrl, apiKey)` and `requestOffspringGroups(apiUrl, apiKey)` — the underlying fetch helpers (throw on non-2xx responses or unexpected response shapes).
+- For manual testing, the `Hooks/useBreederCentral` Storybook story renders a live harness where you can set `apiUrl`/`apiKey` via controls and exercise loading, error, data, and `refetch` without code changes.
 
 ## Utilities
 

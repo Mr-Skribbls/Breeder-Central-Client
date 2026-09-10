@@ -7,6 +7,7 @@ import {
   type AnimalImage,
   type BreederCentralAnimal,
   type BreederCentralOffspringGroup,
+  type OffspringImage,
 } from "./useBreederCentral";
 
 const API_URL = "https://api.example.com";
@@ -18,11 +19,11 @@ const ANIMALS: BreederCentralAnimal[] = [
     name: "Bella",
     images: [
       {
-        animal_id: 1,
-        image_id: "img-1",
-        image_filename: "bella.jpg",
-        center_x: 40,
-        center_y: 60,
+        id: "img-1",
+        animalId: 1,
+        filename: "bella.jpg",
+        centerX: 40,
+        centerY: 60,
         alt: "Bella",
         signedUrl: "https://cdn.example.com/bella.jpg",
       },
@@ -33,11 +34,11 @@ const ANIMALS: BreederCentralAnimal[] = [
     name: "Max",
     images: [
       {
-        animal_id: 2,
-        image_id: "img-2",
-        image_filename: "max.jpg",
-        center_x: 50,
-        center_y: 50,
+        id: "img-2",
+        animalId: 2,
+        filename: "max.jpg",
+        centerX: 50,
+        centerY: 50,
         alt: "Max",
         signedUrl: "https://cdn.example.com/max.jpg",
       },
@@ -73,6 +74,26 @@ const OFFSPRING_GROUPS: BreederCentralOffspringGroup[] = [
     ],
     events: [
       { name: "Born", date: "2025-01-01" },
+    ],
+    images: [
+      {
+        id: "img-3",
+        offspringGroupId: 1,
+        filename: "litter-a.jpg",
+        centerX: 30,
+        centerY: 70,
+        alt: "Litter A",
+        signedUrl: "https://cdn.example.com/litter-a.jpg",
+      },
+      {
+        id: "img-4",
+        offspringGroupId: 1,
+        filename: "litter-a-2.jpg",
+        centerX: 50,
+        centerY: 50,
+        alt: "Litter A second",
+        signedUrl: "https://cdn.example.com/litter-a-2.jpg",
+      },
     ],
   },
 ];
@@ -171,11 +192,16 @@ describe("useBreederCentral", () => {
     expect(result.current.error).toBeNull();
     expect(result.current.animals).toEqual(ANIMALS);
     expect(result.current.animalImages).toHaveLength(2);
-    expect(result.current.animalImages.map((image) => image.image_id)).toEqual([
+    expect(result.current.animalImages.map((image) => image.id)).toEqual([
       "img-1",
       "img-2",
     ]);
     expect(result.current.offspringGroups).toEqual(OFFSPRING_GROUPS);
+    expect(result.current.offspringImages).toHaveLength(2);
+    expect(result.current.offspringImages.map((image) => image.id)).toEqual([
+      "img-3",
+      "img-4",
+    ]);
     expect(fetchMock()).toHaveBeenCalledTimes(2);
   });
 
@@ -260,6 +286,7 @@ describe("useBreederCentral", () => {
     expect(result.current.animals).toEqual([]);
     expect(result.current.animalImages).toEqual([]);
     expect(result.current.offspringGroups).toEqual([]);
+    expect(result.current.offspringImages).toEqual([]);
     expect(localStorage.getItem("breeder-central-animals")).toBeNull();
     expect(localStorage.getItem("breeder-central-offspring-groups")).toBeNull();
   });
@@ -295,5 +322,25 @@ describe("useBreederCentral", () => {
 
     expect(result.current.animals).toEqual(bare);
     expect(result.current.animalImages).toEqual([] as AnimalImage[]);
+  });
+
+  it("handles offspring groups without images", async () => {
+    const bare = [{
+      id: 9,
+      name: "No Pics",
+      description: null,
+      animals: [],
+      events: [],
+    }];
+    stubFetchMulti([
+      { json: ANIMALS },
+      { json: bare },
+    ]);
+
+    const { result } = renderHook(() => useBreederCentral(API_URL, API_KEY));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.offspringGroups).toEqual(bare);
+    expect(result.current.offspringImages).toEqual([] as OffspringImage[]);
   });
 });

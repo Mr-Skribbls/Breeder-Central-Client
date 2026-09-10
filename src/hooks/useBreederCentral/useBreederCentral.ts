@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 
-export interface AnimalImage {
+interface BreederCentralImage {
   id: string;
-  animalId: number;
   filename: string;
   centerX: number;
   centerY: number;
   alt: string;
   signedUrl: string;
+}
+
+export interface AnimalImage extends BreederCentralImage {
+  animalId: number;
 }
 
 export interface BreederCentralAnimal {
@@ -17,6 +20,10 @@ export interface BreederCentralAnimal {
   gender?: 'M' | 'F';
   state?: string;
   images?: AnimalImage[];
+}
+
+export interface OffspringImage extends BreederCentralImage {
+  offspringGroupId: number;
 }
 
 export interface BreederCentralOffspringAnimal {
@@ -35,6 +42,7 @@ export interface BreederCentralOffspringGroup {
   description: string | null;
   animals: BreederCentralOffspringAnimal[];
   events: BreederCentralOffspringEvent[];
+  images?: OffspringImage[];
 }
 
 export const requestAnimals = async (apiUrl: string, apiKey: string): Promise<BreederCentralAnimal[]> => {
@@ -156,6 +164,7 @@ export const useBreederCentral = (apiUrl: string, apiKey: string) => {
   const [animals, setAnimals] = useState<BreederCentralAnimal[]>([]);
   const [animalImages, setAnimalImages] = useState<AnimalImage[]>([]);
   const [offspringGroups, setOffspringGroups] = useState<BreederCentralOffspringGroup[]>([]);
+  const [offspringImages, setOffspringImages] = useState<OffspringImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -185,6 +194,7 @@ export const useBreederCentral = (apiUrl: string, apiKey: string) => {
         setAnimals(fetchedAnimals);
         setAnimalImages(fetchedAnimals.flatMap((animal) => animal.images ?? []));
         setOffspringGroups(fetchedOffspring);
+        setOffspringImages(fetchedOffspring.flatMap((group) => group.images ?? []));
       } catch (err) {
         if (cancelled) return;
         setError(err instanceof Error ? err.message : 'Failed to load animals');
@@ -212,6 +222,7 @@ export const useBreederCentral = (apiUrl: string, apiKey: string) => {
     animals,
     animalImages,
     offspringGroups,
+    offspringImages,
     loading,
     error,
     refetch,

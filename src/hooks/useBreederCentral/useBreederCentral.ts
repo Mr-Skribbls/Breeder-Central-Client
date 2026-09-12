@@ -13,12 +13,20 @@ export interface AnimalImage extends BreederCentralImage {
   animalId: number;
 }
 
+export enum AnimalServiceType {
+  AnimalPurchase = 'Animal Purchase',
+  StudService = 'Stud Service',
+}
+
 export interface BreederCentralAnimal {
   id: number;
   description?: string;
   name?: string;
   gender?: 'M' | 'F';
   state?: string;
+  serviceType?: AnimalServiceType;
+  price?: number;
+  purchaseConditions?: string;
   images?: AnimalImage[];
 }
 

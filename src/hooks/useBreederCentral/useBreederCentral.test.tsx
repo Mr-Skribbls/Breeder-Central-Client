@@ -4,6 +4,7 @@ import {
   requestAnimals,
   requestOffspringGroups,
   useBreederCentral,
+  AnimalServiceType,
   type AnimalImage,
   type BreederCentralAnimal,
   type BreederCentralOffspringGroup,
@@ -17,6 +18,11 @@ const ANIMALS: BreederCentralAnimal[] = [
   {
     id: 1,
     name: "Bella",
+    gender: "F",
+    state: "TX",
+    serviceType: AnimalServiceType.AnimalPurchase,
+    price: 1500,
+    purchaseConditions: "Ready to go home at 8 weeks.",
     images: [
       {
         id: "img-1",
@@ -125,7 +131,11 @@ const stubFetchMulti = (responses: Array<{ ok?: boolean; status?: number; json: 
 describe("requestAnimals", () => {
   it("resolves with animals from a 2xx response", async () => {
     stubFetch(ANIMALS);
-    await expect(requestAnimals(API_URL, API_KEY)).resolves.toEqual(ANIMALS);
+    const result = await requestAnimals(API_URL, API_KEY);
+    expect(result).toEqual(ANIMALS);
+    expect(result[0].serviceType).toBe(AnimalServiceType.AnimalPurchase);
+    expect(result[0].price).toBe(1500);
+    expect(result[0].purchaseConditions).toBe("Ready to go home at 8 weeks.");
     expect(fetchMock()).toHaveBeenCalledWith(`${API_URL}/functions/v1/cdn_get_animals`, {
       headers: { "x-api-key": API_KEY },
     });

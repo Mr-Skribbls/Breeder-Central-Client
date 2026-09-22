@@ -7,10 +7,15 @@ interface BreederCentralImage {
   centerY: number;
   alt: string;
   signedUrl: string;
+  tags: string[];
 }
 
 export interface AnimalImage extends BreederCentralImage {
   animalId: number;
+}
+
+export interface OffspringImage extends BreederCentralImage {
+  offspringGroupId: number;
 }
 
 export enum AnimalServiceType {
@@ -28,10 +33,6 @@ export interface BreederCentralAnimal {
   price?: number;
   purchaseConditions?: string;
   images?: AnimalImage[];
-}
-
-export interface OffspringImage extends BreederCentralImage {
-  offspringGroupId: number;
 }
 
 export interface BreederCentralOffspringAnimal {

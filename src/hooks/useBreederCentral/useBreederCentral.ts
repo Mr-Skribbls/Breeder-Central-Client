@@ -7,7 +7,7 @@ interface BreederCentralImage {
   centerY: number;
   alt: string;
   signedUrl: string;
-  tags: string[];
+  tags?: string[];
 }
 
 export interface AnimalImage extends BreederCentralImage {

@@ -8,6 +8,31 @@ interface RenderUseBreederCentralProps {
   apiKey: string;
 }
 
+const ImageWithTags = ({ tags = [] }: { tags?: string[] }) => {
+  if (!tags.length) return null;
+  return (
+    <div
+      style={{ display: "flex", flexWrap: "wrap", gap: 4, maxWidth: 120 }}
+      aria-label="image tags"
+    >
+      {tags.map((tag) => (
+        <span
+          key={tag}
+          style={{
+            background: "#e8edf2",
+            borderRadius: 4,
+            color: "#475569",
+            fontSize: 11,
+            padding: "1px 6px",
+          }}
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const RenderUseBreederCentral = ({ apiUrl, apiKey }: RenderUseBreederCentralProps) => {
   const { animals, animalImages, offspringGroups, offspringImages, loading, error, refetch } =
     useBreederCentral(apiUrl, apiKey);
@@ -41,14 +66,16 @@ const RenderUseBreederCentral = ({ apiUrl, apiKey }: RenderUseBreederCentralProp
       <h2>Animal images ({animalImages.length})</h2>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {animalImages.map((image) => (
-          <img
-            key={image.id}
-            src={image.signedUrl}
-            alt={image.alt}
-            width={120}
-            height={90}
-            style={{ objectFit: "cover" }}
-          />
+          <div key={image.id} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <img
+              src={image.signedUrl}
+              alt={image.alt}
+              width={120}
+              height={90}
+              style={{ objectFit: "cover" }}
+            />
+            <ImageWithTags tags={image.tags} />
+          </div>
         ))}
       </div>
 
@@ -61,12 +88,15 @@ const RenderUseBreederCentral = ({ apiUrl, apiKey }: RenderUseBreederCentralProp
           </h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {(group.images ?? []).map((image) => (
-              <div key={image.id} style={{ width: 120, height: 90 }}>
-                <BreederCentralImage
-                  imageUrl={image.signedUrl}
-                  alt={image.alt}
-                  center={[image.centerX, image.centerY] as ImageCenter}
-                />
+              <div key={image.id} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ width: 120, height: 90 }}>
+                  <BreederCentralImage
+                    imageUrl={image.signedUrl}
+                    alt={image.alt}
+                    center={[image.centerX, image.centerY] as ImageCenter}
+                  />
+                </div>
+                <ImageWithTags tags={image.tags} />
               </div>
             ))}
           </div>
@@ -76,12 +106,15 @@ const RenderUseBreederCentral = ({ apiUrl, apiKey }: RenderUseBreederCentralProp
       <h2>Offspring images ({offspringImages.length})</h2>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {offspringImages.map((image) => (
-          <div key={image.id} style={{ width: 120, height: 90 }}>
-            <BreederCentralImage
-              imageUrl={image.signedUrl}
-              alt={image.alt}
-              center={[image.centerX, image.centerY] as ImageCenter}
-            />
+          <div key={image.id} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ width: 120, height: 90 }}>
+              <BreederCentralImage
+                imageUrl={image.signedUrl}
+                alt={image.alt}
+                center={[image.centerX, image.centerY] as ImageCenter}
+              />
+            </div>
+            <ImageWithTags tags={image.tags} />
           </div>
         ))}
       </div>

@@ -32,6 +32,7 @@ const ANIMALS: BreederCentralAnimal[] = [
         centerY: 60,
         alt: "Bella",
         signedUrl: "https://cdn.example.com/bella.jpg",
+        tags: ["champion", "female"],
       },
     ],
   },
@@ -47,6 +48,7 @@ const ANIMALS: BreederCentralAnimal[] = [
         centerY: 50,
         alt: "Max",
         signedUrl: "https://cdn.example.com/max.jpg",
+        tags: ["male"],
       },
     ],
   },
@@ -90,6 +92,7 @@ const OFFSPRING_GROUPS: BreederCentralOffspringGroup[] = [
         centerY: 70,
         alt: "Litter A",
         signedUrl: "https://cdn.example.com/litter-a.jpg",
+        tags: ["puppies"],
       },
       {
         id: "img-4",
@@ -99,6 +102,7 @@ const OFFSPRING_GROUPS: BreederCentralOffspringGroup[] = [
         centerY: 50,
         alt: "Litter A second",
         signedUrl: "https://cdn.example.com/litter-a-2.jpg",
+        tags: ["puppies", "playing"],
       },
     ],
   },
@@ -206,12 +210,14 @@ describe("useBreederCentral", () => {
       "img-1",
       "img-2",
     ]);
+    expect(result.current.animalImages[0].tags).toEqual(["champion", "female"]);
     expect(result.current.offspringGroups).toEqual(OFFSPRING_GROUPS);
     expect(result.current.offspringImages).toHaveLength(2);
     expect(result.current.offspringImages.map((image) => image.id)).toEqual([
       "img-3",
       "img-4",
     ]);
+    expect(result.current.offspringImages[1].tags).toEqual(["puppies", "playing"]);
     expect(fetchMock()).toHaveBeenCalledTimes(2);
   });
 
